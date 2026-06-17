@@ -1,0 +1,115 @@
+# BNO055 Killer (9-DoF AHRS Fusion)
+
+A high-performance Arduino/C++ library for 9-DoF (Degrees of Freedom) sensor fusion using the **LSM6DS3 (Accelerometer & Gyroscope)** and **QMC5883L (Magnetometer)** sensor combo, paired with the **Madgwick AHRS** algorithm.
+
+As the name implies, this library is designed as an alternative (and potentially **outperforms**) the legendary **BNO055** smart sensor, offering much lower latency, lower noise, and independent filter tuning control. It is highly suitable for Drones, Balancing Robots, Camera Gimbals, or other high-precision telemetry systems.
+
+---
+
+## Key Features
+
+- **Extremely High Update Rate:** Not limited to 100Hz like the BNO055. When using a 32-bit MCU (STM32, ESP32, Teensy), the fusion rate can run at >400Hz - 800Hz for incredibly smooth latency.
+- **Modern Low-Noise Sensors:** The LSM6DS3 features superior noise density compared to the older sensor architecture inside the BNO055.
+- **Transparent Filter (No Black-Box):** You have full control over the fusion algorithm's sensitivity by adjusting the `Beta` parameter in the Madgwick filter.
+- **Auto-EEPROM Calibration:** Provides an interactive calibration function for Gyroscope (Bias) and Magnetometer (Hard-Iron & Soft-Iron), with results saved permanently to the microcontroller's EEPROM.
+- **BNO055-like API:** The header-only interface is designed to be very beginner-friendly, just like using the BNO055: `imu.getYaw()`, `imu.getPitch()`, `imu.getRoll()`.
+- **Modular Extension:** The mathematical algorithms are completely separated from the hardware drivers. You can easily swap drivers to read from MPU6050, BMI160, or other sensors without breaking the core code.
+
+---
+
+## Hardware Requirements (Wiring & Pinout)
+
+This library requires an **I2C** connection. Here is a standard wiring example (e.g., on STM32 / ESP32):
+
+| Sensor Pin | MCU Connection | Additional Notes |
+| :--- | :--- | :--- |
+| **VCC** | 3.3V | Logic level must be 3.3V! |
+| **GND** | GND | |
+| **SDA** | I2C SDA | |
+| **SCL** | I2C SCL | |
+| **SA0** (LSM6DS3) | GND | Forces I2C Address to `0x6A` |
+| **CS** (LSM6DS3) | VCC / 3.3V | Forces the sensor into I2C mode |
+
+> **Note:** The QMC5883L address is fixed at `0x0D`. Ensure you are actually using a **QMC5883L** module, not an HMC5883L, as their registers differ (blue GY-271 modules mostly contain QMC5883L chips nowadays).
+
+---
+
+## Installation
+
+1. Download or Clone this repository.
+2. If using the Arduino IDE, move the `bno055_killer` folder into your `Documents/Arduino/libraries/` folder.
+3. *(For PlatformIO users, place it in your project's `lib/` folder).*
+4. Run `Wire.begin()` and `Wire.setClock(400000)` in your `setup()` before initializing the library.
+
+---
+
+## Quick Start (Reading Yaw, Pitch, Roll)
+
+A minimal code example to read 3D orientation angles.
+
+```cpp
+#include <Wire.h>
+#include <bno055_killer.h>
+
+IMUHandler imu;
+
+void setup() {
+    Serial.begin(115200);
+    while (!Serial && millis() < 3000) delay(10);
+
+    Wire.begin();
+    Wire.setClock(400000UL); // Use I2C Fast-Mode (400kHz)
+
+    if (!imu.begin()) {
+        Serial.println("Failed to initialize LSM6DS3! Check wiring.");
+        while (1);
+    }
+}
+
+void loop() {
+    // 1. Must be called in every loop iteration for fusion computation!
+    imu.update();
+
+    // 2. Display Output in Serial Plotter
+    static uint32_t lastPrint = 0;
+    if (millis() - lastPrint >= 20) {
+        lastPrint = millis();
+        Serial.print("Yaw:");   Serial.print(imu.getYaw());
+        Serial.print(", Pitch:"); Serial.print(imu.getPitch());
+        Serial.print(", Roll:");  Serial.println(imu.getRoll());
+    }
+}
+```
+*A comprehensive example with all features is available in `bno055_killer_demo.ino` inside the `/examples/` folder.*
+
+---
+
+## How to Calibrate
+
+Unlike the BNO055 which quietly performs background calibration, this custom system requires a **Manual Calibration (Only Once)** for accurate compass (Yaw) results. Without calibration, the Yaw will drift unpredictably.
+
+To perform calibration, use the `bno055_killer_demo.ino` example script, open the Serial Monitor, and follow these steps:
+1. Type `g` in the Serial Monitor, and leave the sensor **perfectly still for 2 seconds** to calibrate the Gyroscope (Finding zero-rate bias).
+2. Type `m` to start the compass calibration mode.
+3. Pick up the sensor and **slowly rotate it in a Figure-8 pattern** in the air. Ensure the sensor covers all orientations (up, down, tilted, upside-down) for about 10-15 seconds.
+4. Type `f` to finish the calibration calculation.
+5. Type `s` to **Save the results to EEPROM**.
+6. Done! From now on, every time the microcontroller boots up, the calibration data will be loaded automatically.
+
+---
+
+## Library Structure (For Developers)
+
+This library is highly modular and separated by responsibility:
+- `imu_handler.h/cpp` : Main class (High-level interface).
+- `madgwick.h/cpp` : Sensor Fusion algorithm (Quaternion math).
+- `kinematics.h/cpp` : Coordinate transformation and conversion (Quaternion to Euler degrees).
+- `calibration.h/cpp` : Hard-iron/Soft-iron compensation calculation & EEPROM management.
+- `lsm6ds3_driver.h/cpp` : Low-level read/write registers specifically for the LSM6DS3 chip.
+- `qmc5883l_driver.h/cpp` : Low-level read/write registers specifically for the QMC5883L chip.
+- `pid.h` : Bonus PID Controller utility with wrap-around support (useful for robotic heading control).
+
+---
+
+## License
+Following standard Open Source projects, this code is distributed under the MIT License. You are free to use, modify, and include it in commercial projects.
