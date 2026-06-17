@@ -17,6 +17,14 @@ As the name implies, this library is designed as an alternative (and potentially
 
 ---
 
+## Trade-offs vs Smart Sensors (Like BNO055)
+
+While this library can outperform hardware-fusion sensors in speed and noise, it comes with architectural trade-offs:
+- **Host CPU Load:** The BNO055 has an internal processor to calculate quaternions, meaning zero math load for your Arduino. This library calculates the complex Madgwick floating-point math on your main microcontroller. Therefore, a **32-bit MCU (STM32, ESP32, Teensy)** with a hardware FPU is highly recommended. Running this on an 8-bit Arduino Uno/Nano is possible but will be slow and consume significant program memory.
+- **Manual Initial Calibration:** The BNO055 continuously runs auto-calibration in the background. With this library, you must manually perform the "Figure-8" calibration routine once and save it to the EEPROM for accurate Yaw tracking. *(Note: While less plug-and-play, this static calibration actually prevents the random heading jumps that sometimes plague the BNO055's unpredictable background auto-calibration).*
+
+---
+
 ## Hardware Requirements (Wiring & Pinout)
 
 This library requires an **I2C** connection. Here is a standard wiring example (e.g., on STM32 / ESP32):
