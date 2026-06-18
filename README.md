@@ -17,7 +17,7 @@ As the name implies, this library is designed as an alternative (and potentially
 
 ---
 
-## Trade-offs vs Smart Sensors (Like BNO055)
+## Trade-offs
 
 While this library can outperform hardware-fusion sensors in speed and noise, it comes with architectural trade-offs:
 - **Host CPU Load:** The BNO055 has an internal processor to calculate quaternions, meaning zero math load for your Arduino. This library calculates the complex Madgwick floating-point math on your main microcontroller. Therefore, a **32-bit MCU (STM32, ESP32, Teensy)** with a hardware FPU is highly recommended. Running this on an 8-bit Arduino Uno/Nano is possible but will be slow and consume significant program memory.
