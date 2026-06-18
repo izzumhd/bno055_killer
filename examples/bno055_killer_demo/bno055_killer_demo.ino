@@ -42,13 +42,13 @@ PID<float> yawPID(2.0f, 0.05f, 0.30f);
 //  Output mode
 // ============================================================
 enum class OutputMode : uint8_t {
-    EULER   = 'r',
-    QUAT    = 'q',
-    ALL     = 'a',
-    HEADING = 'h',
-    NONE    = 'n',
+    OUT_EULER   = 'r',
+    OUT_QUAT    = 'q',
+    OUT_ALL     = 'a',
+    OUT_HEADING = 'h',
+    OUT_NONE    = 'n',
 };
-OutputMode outMode = OutputMode::EULER;
+OutputMode outMode = OutputMode::OUT_EULER;
 
 // ============================================================
 //  setup()
@@ -114,14 +114,14 @@ void printOutput() {
 
     switch (outMode) {
         // --- Euler (Arduino Serial Plotter format) ---
-        case OutputMode::EULER:
+        case OutputMode::OUT_EULER:
             Serial.print(F("Roll:"));    Serial.print(o.euler.roll,  2);
             Serial.print(F(",Pitch:"));  Serial.print(o.euler.pitch, 2);
             Serial.print(F(",Yaw:"));    Serial.println(o.euler.yaw, 2);
             break;
 
         // --- Quaternion ---
-        case OutputMode::QUAT:
+        case OutputMode::OUT_QUAT:
             Serial.print(F("W:")); Serial.print(o.quaternion.w, 5);
             Serial.print(F(",X:")); Serial.print(o.quaternion.x, 5);
             Serial.print(F(",Y:")); Serial.print(o.quaternion.y, 5);
@@ -129,17 +129,17 @@ void printOutput() {
             break;
 
         // --- Heading only ---
-        case OutputMode::HEADING:
+        case OutputMode::OUT_HEADING:
             Serial.print(F("Heading:")); Serial.println(o.heading, 1);
             break;
 
         // --- Full data dump ---
-        case OutputMode::ALL:
+        case OutputMode::OUT_ALL:
             Serial.println(F("┌─── BNO055 Killer Output ───────────────────────┐"));
-            Serial.printf ("│ Roll  : %8.2f °                              │\r\n", o.euler.roll);
-            Serial.printf ("│ Pitch : %8.2f °                              │\r\n", o.euler.pitch);
-            Serial.printf ("│ Yaw   : %8.2f °                              │\r\n", o.euler.yaw);
-            Serial.printf ("│ Head  : %8.1f ° (tilt-compensated)           │\r\n", o.heading);
+            Serial.printf ("│ Roll  : %8.2f deg                            │\r\n", o.euler.roll);
+            Serial.printf ("│ Pitch : %8.2f deg                            │\r\n", o.euler.pitch);
+            Serial.printf ("│ Yaw   : %8.2f deg                            │\r\n", o.euler.yaw);
+            Serial.printf ("│ Head  : %8.1f deg (tilt-compensated)         │\r\n", o.heading);
             Serial.printf ("│ Quat  : W=%.4f X=%.4f Y=%.4f Z=%.4f │\r\n",
                            o.quaternion.w, o.quaternion.x,
                            o.quaternion.y, o.quaternion.z);
@@ -154,7 +154,7 @@ void printOutput() {
             Serial.println(F("└────────────────────────────────────────────────┘"));
             break;
 
-        case OutputMode::NONE:
+        case OutputMode::OUT_NONE:
         default:
             break;
     }
@@ -185,11 +185,11 @@ void handleSerial() {
             Serial.println(F("Calibration saved."));
             break;
 
-        case 'r': outMode = OutputMode::EULER;   Serial.println(F("Mode: Roll/Pitch/Yaw")); break;
-        case 'q': outMode = OutputMode::QUAT;    Serial.println(F("Mode: Quaternion"));      break;
-        case 'a': outMode = OutputMode::ALL;      Serial.println(F("Mode: Full dump"));       break;
-        case 'h': outMode = OutputMode::HEADING;  Serial.println(F("Mode: Heading"));         break;
-        case 'n': outMode = OutputMode::NONE;     Serial.println(F("Mode: Silent"));          break;
+        case 'r': outMode = OutputMode::OUT_EULER;   Serial.println(F("Mode: Roll/Pitch/Yaw")); break;
+        case 'q': outMode = OutputMode::OUT_QUAT;    Serial.println(F("Mode: Quaternion"));      break;
+        case 'a': outMode = OutputMode::OUT_ALL;      Serial.println(F("Mode: Full dump"));       break;
+        case 'h': outMode = OutputMode::OUT_HEADING;  Serial.println(F("Mode: Heading"));         break;
+        case 'n': outMode = OutputMode::OUT_NONE;     Serial.println(F("Mode: Silent"));          break;
 
         case 'i': printInfo(); break;
         case '?': printHelp(); break;
