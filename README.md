@@ -7,6 +7,8 @@ A high-performance Arduino/C++ library for 9-DoF (Degrees of Freedom) sensor fus
 
 As the name implies, this library is designed as an alternative (and potentially **outperforms**) the legendary **BNO055** smart sensor, offering much lower latency, lower noise, and independent filter tuning control. It is highly suitable for Drones, Balancing Robots, Camera Gimbals, or other high-precision telemetry systems.
 
+> **Note**: the default IMU is LSM6DS3 and the default Magnetometer is QMC5883L and it works well with combo **LSM6DS3** + **QMC5883L**. I haven't tested the library with HMC5883L and BMI160 and MPU6050 yet. So if you want to use HMC5883L or BMI160 or MPU6050, I would appreciate it if you test it yourself and let me know if it works. Thanks!
+
 ---
 
 ## Key Features
