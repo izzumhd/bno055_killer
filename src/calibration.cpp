@@ -41,12 +41,9 @@ bool Calibration::load() {
 
 void Calibration::save() {
     data.magic = EEPROM_MAGIC;
+    // EEPROM.put() on STM32duino 2.x writes directly to emulated flash.
+    // No separate commit() call needed (method was removed in 2.x).
     EEPROM.put(EEPROM_START_ADDR, data);
-
-    // STM32duino requires an explicit commit to flush RAM buffer to flash
-#if defined(ARDUINO_ARCH_STM32) || defined(STM32F4xx) || defined(STM32F401xx)
-    EEPROM.commit();
-#endif
 }
 
 // ============================================================
