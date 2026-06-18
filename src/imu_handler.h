@@ -3,7 +3,12 @@
 #include <Wire.h>
 #include "config.h"
 #include "types.h"
+
 #include "lsm6ds3_driver.h"
+#include "bmi160_driver.h"
+#include "mpu6050_driver.h"
+
+
 #include "qmc5883l_driver.h"
 #include "calibration.h"
 #include "madgwick.h"
@@ -128,7 +133,14 @@ public:
 
 private:
     TwoWire*       _wire;
-    LSM6DS3Driver  _imu;
+
+    // =============================
+    // IMU selection - Select the IMU to use by uncommenting the corresponding line
+    LSM6DS3Driver  _imu; // uncomment when using LSM6DS3
+    // BMI160Driver  _imu; // uncomment when using BMI160
+    // MPU6050Driver  _imu; // uncomment when using MPU6050
+    // =============================
+
     QMC5883LDriver _mag;
     Calibration    _calib;
     MadgwickAHRS   _madgwick;

@@ -1,6 +1,9 @@
 # BNO055 Killer (9-DoF AHRS Fusion)
 
-A high-performance Arduino/C++ library for 9-DoF (Degrees of Freedom) sensor fusion using the **LSM6DS3 (Accelerometer & Gyroscope)** and **QMC5883L (Magnetometer)** sensor combo, paired with the **Madgwick AHRS** algorithm.
+A high-performance Arduino/C++ library for 9-DoF (Degrees of Freedom) sensor fusion using the **Madgwick AHRS** algorithm. It is designed to work with a **QMC5883L (Magnetometer)** and your choice of three popular 6-axis IMUs:
+* **LSM6DS3**
+* **BMI160**
+* **MPU6050**
 
 As the name implies, this library is designed as an alternative (and potentially **outperforms**) the legendary **BNO055** smart sensor, offering much lower latency, lower noise, and independent filter tuning control. It is highly suitable for Drones, Balancing Robots, Camera Gimbals, or other high-precision telemetry systems.
 
@@ -13,7 +16,7 @@ As the name implies, this library is designed as an alternative (and potentially
 - **Transparent Filter (No Black-Box):** You have full control over the fusion algorithm's sensitivity by adjusting the `Beta` parameter in the Madgwick filter.
 - **Auto-EEPROM Calibration:** Provides an interactive calibration function for Gyroscope (Bias) and Magnetometer (Hard-Iron & Soft-Iron), with results saved permanently to the microcontroller's EEPROM.
 - **BNO055-like API:** The header-only interface is designed to be very beginner-friendly, just like using the BNO055: `imu.getYaw()`, `imu.getPitch()`, `imu.getRoll()`.
-- **Modular Extension:** The mathematical algorithms are completely separated from the hardware drivers. You can easily swap drivers to read from MPU6050, BMI160, or other sensors without breaking the core code.
+- **Multi-IMU Support:** Out of the box, it includes drivers for **LSM6DS3**, **BMI160**, and **MPU6050**. The mathematical algorithms are completely separated from the hardware drivers, making it extremely easy to switch between sensors.
 
 ---
 
@@ -22,6 +25,23 @@ As the name implies, this library is designed as an alternative (and potentially
 While this library can outperform hardware-fusion sensors in speed and noise, it comes with architectural trade-offs:
 - **Host CPU Load:** The BNO055 has an internal processor to calculate quaternions, meaning zero math load for your Arduino. This library calculates the complex Madgwick floating-point math on your main microcontroller. Therefore, a **32-bit MCU (STM32, ESP32, Teensy)** with a hardware FPU is highly recommended. Running this on an 8-bit Arduino Uno/Nano is possible but will be slow and consume significant program memory.
 - **Manual Initial Calibration:** The BNO055 continuously runs auto-calibration in the background. With this library, you must manually perform the "Figure-8" calibration routine once and save it to the EEPROM for accurate Yaw tracking. *(Note: While less plug-and-play, this static calibration actually prevents the random heading jumps that sometimes plague the BNO055's unpredictable background auto-calibration).*
+
+---
+
+## How to Switch IMU Sensor
+
+By default, the library uses the `LSM6DS3`. To switch to a different IMU (like BMI160 or MPU6050):
+1. Open the file `src/imu_handler.h`.
+2. Look for the `IMU selection` block (around line 138).
+3. **Uncomment** the IMU you want to use, and **Comment out** the others.
+
+```cpp
+    // IMU selection - Select the IMU to use by uncommenting the corresponding line
+    // LSM6DS3Driver  _imu; // uncomment when using LSM6DS3
+    BMI160Driver  _imu;     // uncomment when using BMI160
+    // MPU6050Driver  _imu; // uncomment when using MPU6050
+```
+That's it! The entire library will automatically adapt to the new sensor.
 
 ---
 
@@ -35,8 +55,8 @@ This library requires an **I2C** connection. Here is a standard wiring example (
 | **GND** | GND | |
 | **SDA** | I2C SDA | |
 | **SCL** | I2C SCL | |
-| **SA0** (LSM6DS3) | GND | Forces I2C Address to `0x6A` |
-| **CS** (LSM6DS3) | VCC / 3.3V | Forces the sensor into I2C mode |
+| **AD0 / SA0** | GND | Sets the I2C Address to the default expected by the drivers |
+| **CS** | VCC / 3.3V | Forces SPI-capable sensors (like LSM6DS3/BMI160) into I2C mode |
 
 > **Note:** The QMC5883L address is fixed at `0x0D`. Ensure you are actually using a **QMC5883L** module, not an HMC5883L, as their registers differ (blue GY-271 modules mostly contain QMC5883L chips nowadays).
 
