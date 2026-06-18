@@ -1,7 +1,8 @@
 /**
  * ============================================================
  *  BNO055 Killer — Full Demo
- *  LSM6DS3 + QMC5883L on STM32F401RCT6
+ *  LSM6DS3 + QMC5883L 
+ *  by izzumhdh
  * ============================================================
  *
  *  Hardware wiring (I2C — default pins for STM32F401):

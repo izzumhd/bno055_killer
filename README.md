@@ -106,6 +106,18 @@ To perform calibration, use the `bno055_killer_demo.ino` example script, open th
 
 ---
 
+## Examples Included
+
+The `examples/` directory contains several sketches to help you get started:
+- **`read_ypr`**: The simplest example to read Yaw, Pitch, and Roll.
+- **`calibration`**: Semi-automatic interactive calibration utility to save Gyro and Hard/Soft-Iron offsets to EEPROM.
+- **`read_raw_data`**: For reading pure accelerometer, gyroscope, and magnetometer data without the AHRS fusion.
+- **`heading_hold_pid`**: Demonstrates how to use the built-in wrap-around PID controller to maintain a specific heading (useful for robots/drones).
+- **`quaternion_visualizer`**: Outputs data specially formatted for 3D visualization tools (like Processing) and includes an ASCII 3D cube and Attitude Indicator.
+- **`bno055_killer_demo`**: The "kitchen sink" demo showing all features, serial commands, and various data output modes.
+
+---
+
 ## Library Structure (For Developers)
 
 This library is highly modular and separated by responsibility:
