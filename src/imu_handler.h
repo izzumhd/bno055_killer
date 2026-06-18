@@ -8,8 +8,9 @@
 #include "bmi160_driver.h"
 #include "mpu6050_driver.h"
 
-
 #include "qmc5883l_driver.h"
+#include "hmc5883l_driver.h"
+
 #include "calibration.h"
 #include "madgwick.h"
 #include "kinematics.h"
@@ -141,7 +142,12 @@ private:
     // MPU6050Driver  _imu; // uncomment when using MPU6050
     // =============================
 
-    QMC5883LDriver _mag;
+    // =============================
+    // Magnetometer selection - Select the Mag to use by uncommenting the corresponding line
+    QMC5883LDriver _mag; // uncomment when using QMC5883L (GY-271)
+    // HMC5883LDriver _mag; // uncomment when using HMC5883L
+    // =============================
+
     Calibration    _calib;
     MadgwickAHRS   _madgwick;
     FusionOutput   _out;

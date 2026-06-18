@@ -1,6 +1,6 @@
 # BNO055 Killer (9-DoF AHRS Fusion)
 
-A high-performance Arduino/C++ library for 9-DoF (Degrees of Freedom) sensor fusion using the **Madgwick AHRS** algorithm. It is designed to work with a **QMC5883L (Magnetometer)** and your choice of three popular 6-axis IMUs:
+A high-performance Arduino/C++ library for 9-DoF (Degrees of Freedom) sensor fusion using the **Madgwick AHRS** algorithm. It is designed to work with your choice of Magnetometer (**QMC5883L** or **HMC5883L**) and three popular 6-axis IMUs:
 * **LSM6DS3**
 * **BMI160**
 * **MPU6050**
@@ -16,7 +16,7 @@ As the name implies, this library is designed as an alternative (and potentially
 - **Transparent Filter (No Black-Box):** You have full control over the fusion algorithm's sensitivity by adjusting the `Beta` parameter in the Madgwick filter.
 - **Auto-EEPROM Calibration:** Provides an interactive calibration function for Gyroscope (Bias) and Magnetometer (Hard-Iron & Soft-Iron), with results saved permanently to the microcontroller's EEPROM.
 - **BNO055-like API:** The header-only interface is designed to be very beginner-friendly, just like using the BNO055: `imu.getYaw()`, `imu.getPitch()`, `imu.getRoll()`.
-- **Multi-IMU Support:** Out of the box, it includes drivers for **LSM6DS3**, **BMI160**, and **MPU6050**. The mathematical algorithms are completely separated from the hardware drivers, making it extremely easy to switch between sensors.
+- **Multi-Sensor Support:** Out of the box, it includes drivers for **LSM6DS3**, **BMI160**, and **MPU6050** IMUs, as well as **QMC5883L** and **HMC5883L** magnetometers. The mathematical algorithms are completely separated from the hardware drivers, making it extremely easy to switch between sensors.
 
 ---
 
@@ -28,20 +28,26 @@ While this library can outperform hardware-fusion sensors in speed and noise, it
 
 ---
 
-## How to Switch IMU Sensor
+## How to Switch Sensors (IMU & Magnetometer)
 
-By default, the library uses the `LSM6DS3`. To switch to a different IMU (like BMI160 or MPU6050):
+By default, the library uses the `LSM6DS3` and `QMC5883L`. To switch to a different sensor combination:
 1. Open the file `src/imu_handler.h`.
-2. Look for the `IMU selection` block (around line 138).
-3. **Uncomment** the IMU you want to use, and **Comment out** the others.
+2. Look for the `IMU selection` and `Magnetometer selection` blocks (around line 138).
+3. **Uncomment** the sensors you want to use, and **Comment out** the others.
 
 ```cpp
     // IMU selection - Select the IMU to use by uncommenting the corresponding line
-    // LSM6DS3Driver  _imu; // uncomment when using LSM6DS3
-    BMI160Driver  _imu;     // uncomment when using BMI160
+    LSM6DS3Driver  _imu; // uncomment when using LSM6DS3
+    // BMI160Driver  _imu; // uncomment when using BMI160
     // MPU6050Driver  _imu; // uncomment when using MPU6050
+    // =============================
+
+    // =============================
+    // Magnetometer selection - Select the Mag to use by uncommenting the corresponding line
+    QMC5883LDriver _mag; // uncomment when using QMC5883L (GY-271)
+    // HMC5883LDriver _mag; // uncomment when using HMC5883L
 ```
-That's it! The entire library will automatically adapt to the new sensor.
+That's it! The entire library will automatically adapt to your new hardware combination.
 
 ---
 
