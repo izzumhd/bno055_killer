@@ -57,15 +57,28 @@ void setup() {
     Serial.println("-> Place the sensor/robot PERFECTLY STILL on a flat surface.");
     Serial.println("-> Send ANY character in the Serial Monitor to start...");
     
-    waitForUserInput();
+    Serial.println("\n[PENTING] Tekan 'R' lalu Enter untuk RESET TOTAL EEPROM (Jika Pitch/Roll error).");
+    Serial.println("Atau tekan sembarang huruf lain untuk melanjutkan Kalibrasi normal...");
+    
+    while (!Serial.available()) { delay(10); }
+    char cmd = Serial.read();
+    if (cmd == 'R' || cmd == 'r') {
+        imu.getCalibration().reset();
+        imu.saveCalibration();
+        Serial.println("=> EEPROM TELAH DIRESET TOTAL KE NOL!");
+    }
+    
+    while (Serial.available()) Serial.read(); // flush
 
     Serial.println("\nCALIBRATING GYRO... (Do not touch!)");
     
     // This function will block execution for ~1.2 seconds
     imu.calibrateGyro(); 
-    Serial.println("-> Gyro Calibration COMPLETE!\n");
-
-    // --------------------------------------------------------
+    // Wait for user before phase 2
+    Serial.println("\nGyro calibration complete.");
+    imu.saveCalibration();
+    Serial.println("Data Gyro Bias berhasil disimpan sementara ke EEPROM!");
+    delay(1000); // --------------------------------------------------------
     // PHASE 2: Magnetometer Calibration
     // --------------------------------------------------------
     Serial.println("[STEP 2/2] Magnetometer Calibration (Hard/Soft-Iron)");

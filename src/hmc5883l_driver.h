@@ -43,6 +43,9 @@ public:
      */
     explicit HMC5883LDriver(uint8_t addr = HMC5883L_I2C_ADDR, TwoWire* wire = &Wire);
 
+    /** Convenience: wire-only constructor — uses default I2C address. */
+    explicit HMC5883LDriver(TwoWire* wire) : HMC5883LDriver(HMC5883L_I2C_ADDR, wire) {}
+
     /**
      * Initialize sensor. Sets ODR, averaging, gain, and mode.
      * @return true if all register writes succeed.

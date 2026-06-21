@@ -25,7 +25,10 @@ void setup() {
         }
     }
     
-    Serial.println("Sensor berhasil diinisialisasi. Membaca Yaw, Pitch, dan Roll...");
+    Serial.println("\n[PENTING] JANGAN SENTUH ROBOT SELAMA 2 DETIK! Sedang kalibrasi Gyro otomatis...");
+    imu.calibrateGyro();
+    
+    Serial.println("\nSensor berhasil diinisialisasi. Membaca Yaw, Pitch, dan Roll...");
 }
 
 void loop() {

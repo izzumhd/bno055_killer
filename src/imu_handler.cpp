@@ -7,8 +7,8 @@
 
 IMUHandler::IMUHandler(TwoWire* wire)
     : _wire(wire),
-      _imu(LSM6DS3_I2C_ADDR, wire),
-      _mag(QMC5883L_I2C_ADDR, wire),
+      _imu(wire),    // uses driver's default I2C address
+      _mag(wire),    // uses driver's default I2C address
       _magCalibrating(false),
       _lastFusionUs(0),
       _fusionCount(0),
@@ -108,9 +108,20 @@ bool IMUHandler::update() {
     // ---- Madgwick Fusion ----
     bool magValid = (_lastMag.x != 0.0f || _lastMag.y != 0.0f || _lastMag.z != 0.0f);
     if (_status.magOk && magValid) {
+        // ========================================================================
+        // AXIS REMAPPING (SANGAT PENTING!)
+        // Jika Yaw terus nge-drift saat diam, artinya sumbu X, Y, Z pada modul 
+        // Magnetometer (QMC5883P) tidak sejajar dengan modul IMU (BMI160).
+        // Ubah konfigurasi di bawah ini untuk menyamakan arah sumbu Magnetometer 
+        // dengan arah sumbu Accelerometer/Gyro.
+        // ========================================================================
+        float mx = _lastMag.x;   // Coba tukar dengan _lastMag.y atau _lastMag.z
+        float my = _lastMag.y;   // Tambahkan tanda minus (-) jika arahnya terbalik
+        float mz = _lastMag.z;   // Contoh: float mx = -_lastMag.y;
+
         _madgwick.update(gyro.x, gyro.y, gyro.z,
                          accel.x, accel.y, accel.z,
-                         _lastMag.x, _lastMag.y, _lastMag.z,
+                         mx, my, mz,
                          dt);
     } else {
         _madgwick.updateIMU(gyro.x, gyro.y, gyro.z,
@@ -178,10 +189,12 @@ void IMUHandler::calibrateGyro() {
     }
 
     _status.gyroCalibrated = true;
-    Serial.printf("[BNO055Killer] Gyro bias (rad/s): X=%.6f  Y=%.6f  Z=%.6f\r\n",
-                  _calib.data.gyroBias[0],
-                  _calib.data.gyroBias[1],
-                  _calib.data.gyroBias[2]);
+    Serial.print(F("[BNO055Killer] Gyro bias (rad/s): X="));
+    Serial.print(_calib.data.gyroBias[0], 6);
+    Serial.print(F("  Y="));
+    Serial.print(_calib.data.gyroBias[1], 6);
+    Serial.print(F("  Z="));
+    Serial.println(_calib.data.gyroBias[2], 6);
     Serial.println(F("[BNO055Killer] Gyro calibration done. Call saveCalibration() to persist."));
 }
 
@@ -203,12 +216,12 @@ void IMUHandler::finishMagCalibration() {
     _status.magCalibrated = true;
 
     Serial.println(F("[BNO055Killer] Mag calibration complete. Saved to EEPROM."));
-    Serial.printf("[BNO055Killer] Hard-iron (µT): X=%.3f  Y=%.3f  Z=%.3f\r\n",
-                  _calib.data.magHardIron[0],
-                  _calib.data.magHardIron[1],
-                  _calib.data.magHardIron[2]);
-    Serial.printf("[BNO055Killer] Soft-iron diag: X=%.4f  Y=%.4f  Z=%.4f\r\n",
-                  _calib.data.magSoftIron[0][0],
-                  _calib.data.magSoftIron[1][1],
-                  _calib.data.magSoftIron[2][2]);
+    Serial.print(F("[BNO055Killer] Hard-iron (uT): X="));
+    Serial.print(_calib.data.magHardIron[0], 3);
+    Serial.print(F("  Y=")); Serial.print(_calib.data.magHardIron[1], 3);
+    Serial.print(F("  Z=")); Serial.println(_calib.data.magHardIron[2], 3);
+    Serial.print(F("[BNO055Killer] Soft-iron diag: X="));
+    Serial.print(_calib.data.magSoftIron[0][0], 4);
+    Serial.print(F("  Y=")); Serial.print(_calib.data.magSoftIron[1][1], 4);
+    Serial.print(F("  Z=")); Serial.println(_calib.data.magSoftIron[2][2], 4);
 }

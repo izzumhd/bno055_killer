@@ -9,7 +9,7 @@
 // ----------------------------------------------------------------
 // I2C Addresses
 // ----------------------------------------------------------------
-#define LSM6DS3_I2C_ADDR      0x6A    // SA0/SDO pin LOW  → 0x6A
+#define LSM6DS3_I2C_ADDR      0x6B    // SA0/SDO pin LOW  → 0x6A
                                       // SA0/SDO pin HIGH → 0x6B
 #define QMC5883L_I2C_ADDR     0x0D    // Fixed, not configurable
 
@@ -64,7 +64,7 @@
 // Beta represents the estimated mean zero gyro measurement error (rad/s).
 // Higher beta = faster convergence but more noise sensitivity.
 // Typical range: 0.01 (very stable) … 0.5 (fast convergence)
-#define MADGWICK_BETA_DEFAULT  0.041f   // Madgwick's recommended value
+#define MADGWICK_BETA_DEFAULT  0.015f   // Diturunkan agar setenang BNO055 (Noise reduction)
 #define MADGWICK_BETA_INIT     0.5f     // High gain for warmup convergence
 
 // ----------------------------------------------------------------

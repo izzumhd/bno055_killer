@@ -22,6 +22,9 @@ public:
     explicit QMC5883LDriver(uint8_t addr = QMC5883L_I2C_ADDR,
                             TwoWire* wire = &Wire);
 
+    /** Convenience: wire-only constructor — uses default I2C address. */
+    explicit QMC5883LDriver(TwoWire* wire) : QMC5883LDriver(QMC5883L_I2C_ADDR, wire) {}
+
     /**
      * Initialize sensor. Issues soft-reset first.
      * @return true if all register writes succeed.

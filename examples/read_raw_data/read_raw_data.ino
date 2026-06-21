@@ -27,7 +27,7 @@
 //  Akses langsung ke driver (bypass IMUHandler & Madgwick)
 // ============================================================
 LSM6DS3Driver  imuDrv;
-QMC5883LDriver magDrv;
+QMC5883PDriver magDrv;
 
 enum class RawMode : uint8_t {
     RAW_COUNTS = 'r',
@@ -50,35 +50,35 @@ void setup() {
     Serial.begin(115200);
     while (!Serial && millis() < 3000) delay(10);
 
-    Serial.println(F("\n=== BNO055 Killer — Read Raw Data ==="));
-    Serial.println(F("by izzumhdh\n"));
+    Serial.println("\n=== BNO055 Killer — Read Raw Data ===");
+    Serial.println("by izzumhdh\n");
 
     Wire.begin();
     Wire.setClock(400000UL);
 
     // ---- Cek LSM6DS3 ----
     imuOk = imuDrv.begin();
-    Serial.print(F("LSM6DS3  (0x6A) : "));
+    Serial.print("LSM6DS3  (0x6A) : ");
     if (imuOk) {
-        Serial.print(F("OK  | WHO_AM_I = 0x"));
+        Serial.print("OK  | WHO_AM_I = 0x");
         Serial.print(imuDrv.whoAmI(), HEX);
-        Serial.println(F("  (expected 0x69)"));
+        Serial.println("  (expected 0x69)");
     } else {
-        Serial.print(F("GAGAL | WHO_AM_I = 0x"));
+        Serial.print("GAGAL | WHO_AM_I = 0x");
         Serial.print(imuDrv.whoAmI(), HEX);
-        Serial.println(F("  (cek kabel SDA/SCL, SA0→GND, CS→VCC)"));
+        Serial.println("  (cek kabel SDA/SCL, SA0, CS)");
     }
 
-    // ---- Cek QMC5883L ----
+    // ---- Cek QMC5883P ----
     magOk = magDrv.begin();
-    Serial.print(F("QMC5883L (0x0D) : "));
-    Serial.println(magOk ? F("OK") : F("GAGAL  (cek kabel)"));
+    Serial.print("QMC5883P (0x2C) : ");
+    Serial.println(magOk ? "OK" : "GAGAL  (cek kabel)");
 
-    Serial.println(F("\nKomando:"));
-    Serial.println(F("  r — Raw ADC counts (int16)"));
-    Serial.println(F("  s — Nilai fisik (g, rad/s, uT)  [default]"));
-    Serial.println(F("  a — Verbose (semua field)"));
-    Serial.println(F("  p — Serial Plotter mode\n"));
+    Serial.println("\nKomando:");
+    Serial.println("  r — Raw ADC counts (int16)");
+    Serial.println("  s — Nilai fisik (g, rad/s, uT)  [default]");
+    Serial.println("  a — Verbose (semua field)");
+    Serial.println("  p — Serial Plotter mode\n");
 }
 
 // ============================================================
@@ -88,10 +88,10 @@ void loop() {
     if (Serial.available()) {
         char c = (char)Serial.read();
         switch (c) {
-            case 'r': outMode = RawMode::RAW_COUNTS; Serial.println(F("[Mode: Raw Counts]")); break;
-            case 's': outMode = RawMode::SCALED;     Serial.println(F("[Mode: Scaled]"));     break;
-            case 'a': outMode = RawMode::VERBOSE;    Serial.println(F("[Mode: Verbose]"));    break;
-            case 'p': outMode = RawMode::PLOTTER;    Serial.println(F("[Mode: Plotter]"));    break;
+            case 'r': outMode = RawMode::RAW_COUNTS; Serial.println("[Mode: Raw Counts]"); break;
+            case 's': outMode = RawMode::SCALED;     Serial.println("[Mode: Scaled]");     break;
+            case 'a': outMode = RawMode::VERBOSE;    Serial.println("[Mode: Verbose]");    break;
+            case 'p': outMode = RawMode::PLOTTER;    Serial.println("[Mode: Plotter]");    break;
         }
     }
 
@@ -126,58 +126,66 @@ void loop() {
 
 void printRaw(const RawIMU& r, const RawMag& m) {
     // Accel raw
-    Serial.print(F("AX:")); Serial.print(r.ax);
-    Serial.print(F(" AY:")); Serial.print(r.ay);
-    Serial.print(F(" AZ:")); Serial.print(r.az);
+    Serial.print("AX:"); Serial.print(r.ax);
+    Serial.print(" AY:"); Serial.print(r.ay);
+    Serial.print(" AZ:"); Serial.print(r.az);
     // Gyro raw
-    Serial.print(F("  GX:")); Serial.print(r.gx);
-    Serial.print(F(" GY:")); Serial.print(r.gy);
-    Serial.print(F(" GZ:")); Serial.print(r.gz);
+    Serial.print("  GX:"); Serial.print(r.gx);
+    Serial.print(" GY:"); Serial.print(r.gy);
+    Serial.print(" GZ:"); Serial.print(r.gz);
     // Mag raw
-    Serial.print(F("  MX:")); Serial.print(m.x);
-    Serial.print(F(" MY:")); Serial.print(m.y);
-    Serial.print(F(" MZ:")); Serial.println(m.z);
+    Serial.print("  MX:"); Serial.print(m.x);
+    Serial.print(" MY:"); Serial.print(m.y);
+    Serial.print(" MZ:"); Serial.println(m.z);
 }
 
 void printScaled(const Vector3f& a, const Vector3f& g, const Vector3f& m) {
     if (imuOk) {
-        Serial.printf("Accel : X=%8.5f  Y=%8.5f  Z=%8.5f  g\r\n",     a.x, a.y, a.z);
-        Serial.printf("Gyro  : X=%8.5f  Y=%8.5f  Z=%8.5f  rad/s\r\n", g.x, g.y, g.z);
+        Serial.print("Accel : X="); Serial.print(a.x, 5);
+        Serial.print("  Y="); Serial.print(a.y, 5);
+        Serial.print("  Z="); Serial.print(a.z, 5); Serial.println("  g");
+        
+        Serial.print("Gyro  : X="); Serial.print(g.x, 5);
+        Serial.print("  Y="); Serial.print(g.y, 5);
+        Serial.print("  Z="); Serial.print(g.z, 5); Serial.println("  rad/s");
     }
     if (magOk) {
-        Serial.printf("Mag   : X=%7.2f  Y=%7.2f  Z=%7.2f  uT\r\n", m.x, m.y, m.z);
-        Serial.printf("        |mag| = %.3f uT\r\n", m.norm());
+        Serial.print("Mag   : X="); Serial.print(m.x, 2);
+        Serial.print("  Y="); Serial.print(m.y, 2);
+        Serial.print("  Z="); Serial.print(m.z, 2); Serial.println("  uT");
+        
+        Serial.print("        |mag| = "); Serial.print(m.norm(), 3); Serial.println(" uT");
     }
     if (imuOk) {
-        Serial.printf("        |acc| = %.5f g  (idle ~1.000)\r\n", a.norm());
+        Serial.print("        |acc| = "); Serial.print(a.norm(), 5); Serial.println(" g  (idle ~1.000)");
     }
     Serial.println();
 }
 
 void printVerbose(const RawIMU& ri, const RawMag& rm,
                   const Vector3f& a, const Vector3f& g, const Vector3f& m) {
-    Serial.println(F("┌─── LSM6DS3 ──────────────────────────────┐"));
-    Serial.printf("│ Raw Accel : AX=%6d AY=%6d AZ=%6d │\r\n", ri.ax, ri.ay, ri.az);
-    Serial.printf("│ Raw Gyro  : GX=%6d GY=%6d GZ=%6d │\r\n", ri.gx, ri.gy, ri.gz);
-    Serial.printf("│ Accel [g] : X=%8.5f Y=%8.5f Z=%8.5f │\r\n", a.x, a.y, a.z);
-    Serial.printf("│ Gyro r/s  : X=%8.5f Y=%8.5f Z=%8.5f │\r\n", g.x, g.y, g.z);
-    Serial.printf("│ |accel|   = %.5f g (idle target: 1.000)   │\r\n", a.norm());
-    Serial.println(F("├─── QMC5883L ─────────────────────────────┤"));
-    Serial.printf("│ Raw Mag   : MX=%6d MY=%6d MZ=%6d │\r\n", rm.x, rm.y, rm.z);
-    Serial.printf("│ Mag  [uT] : X=%7.3f Y=%7.3f Z=%7.3f    │\r\n", m.x, m.y, m.z);
-    Serial.printf("│ |mag|     = %.3f uT                        │\r\n", m.norm());
-    Serial.println(F("└──────────────────────────────────────────┘\n"));
+    Serial.println("┌─── LSM6DS3 ──────────────────────────────┐");
+    Serial.print("│ Raw Accel : AX="); Serial.print(ri.ax); Serial.print(" AY="); Serial.print(ri.ay); Serial.print(" AZ="); Serial.println(ri.az);
+    Serial.print("│ Raw Gyro  : GX="); Serial.print(ri.gx); Serial.print(" GY="); Serial.print(ri.gy); Serial.print(" GZ="); Serial.println(ri.gz);
+    Serial.print("│ Accel [g] : X="); Serial.print(a.x, 5); Serial.print(" Y="); Serial.print(a.y, 5); Serial.print(" Z="); Serial.println(a.z, 5);
+    Serial.print("│ Gyro r/s  : X="); Serial.print(g.x, 5); Serial.print(" Y="); Serial.print(g.y, 5); Serial.print(" Z="); Serial.println(g.z, 5);
+    Serial.print("│ |accel|   = "); Serial.print(a.norm(), 5); Serial.println(" g (idle target: 1.000)");
+    Serial.println("├─── QMC5883P ─────────────────────────────┤");
+    Serial.print("│ Raw Mag   : MX="); Serial.print(rm.x); Serial.print(" MY="); Serial.print(rm.y); Serial.print(" MZ="); Serial.println(rm.z);
+    Serial.print("│ Mag  [uT] : X="); Serial.print(m.x, 3); Serial.print(" Y="); Serial.print(m.y, 3); Serial.print(" Z="); Serial.println(m.z, 3);
+    Serial.print("│ |mag|     = "); Serial.print(m.norm(), 3); Serial.println(" uT");
+    Serial.println("└──────────────────────────────────────────┘\n");
 }
 
 void printPlotter(const Vector3f& a, const Vector3f& g, const Vector3f& m) {
     // Format Arduino Serial Plotter: label:value,label:value,...
-    Serial.print(F("Ax:")); Serial.print(a.x, 4);
-    Serial.print(F(",Ay:")); Serial.print(a.y, 4);
-    Serial.print(F(",Az:")); Serial.print(a.z, 4);
-    Serial.print(F(",Gx:")); Serial.print(g.x, 4);
-    Serial.print(F(",Gy:")); Serial.print(g.y, 4);
-    Serial.print(F(",Gz:")); Serial.print(g.z, 4);
-    Serial.print(F(",Mx:")); Serial.print(m.x, 2);
-    Serial.print(F(",My:")); Serial.print(m.y, 2);
-    Serial.print(F(",Mz:")); Serial.println(m.z, 2);
+    Serial.print("Ax:"); Serial.print(a.x, 4);
+    Serial.print(",Ay:"); Serial.print(a.y, 4);
+    Serial.print(",Az:"); Serial.print(a.z, 4);
+    Serial.print(",Gx:"); Serial.print(g.x, 4);
+    Serial.print(",Gy:"); Serial.print(g.y, 4);
+    Serial.print(",Gz:"); Serial.print(g.z, 4);
+    Serial.print(",Mx:"); Serial.print(m.x, 2);
+    Serial.print(",My:"); Serial.print(m.y, 2);
+    Serial.print(",Mz:"); Serial.println(m.z, 2);
 }

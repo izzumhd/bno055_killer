@@ -47,6 +47,9 @@ public:
      */
     explicit MPU6050Driver(uint8_t addr = MPU6050_I2C_ADDR, TwoWire* wire = &Wire);
 
+    /** Convenience: wire-only constructor — uses default I2C address. */
+    explicit MPU6050Driver(TwoWire* wire) : MPU6050Driver(MPU6050_I2C_ADDR, wire) {}
+
     /**
      * Initialize sensor. Wakes up the chip, sets clock source and scales.
      * @return true if WHO_AM_I matches and all registers written OK.

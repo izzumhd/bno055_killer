@@ -21,6 +21,9 @@ public:
     explicit LSM6DS3Driver(uint8_t addr = LSM6DS3_I2C_ADDR,
                            TwoWire* wire = &Wire);
 
+    /** Convenience: wire-only constructor — uses default I2C address. */
+    explicit LSM6DS3Driver(TwoWire* wire) : LSM6DS3Driver(LSM6DS3_I2C_ADDR, wire) {}
+
     /**
      * Initialize sensor. Sets ODR, FS, BDU, IF_INC.
      * @return true if WHO_AM_I matches and all registers written OK.

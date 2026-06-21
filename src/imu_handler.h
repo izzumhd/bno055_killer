@@ -10,6 +10,7 @@
 
 #include "qmc5883l_driver.h"
 #include "hmc5883l_driver.h"
+#include "qmc5883p_driver.h"
 
 #include "calibration.h"
 #include "madgwick.h"
@@ -144,8 +145,9 @@ private:
 
     // =============================
     // Magnetometer selection - Select the Mag to use by uncommenting the corresponding line
-    QMC5883LDriver _mag; // uncomment when using QMC5883L (GY-271)
-    // HMC5883LDriver _mag; // uncomment when using HMC5883L
+    // QMC5883LDriver _mag; // uncomment when using QMC5883L (GY-271, addr 0x0D)
+    // HMC5883LDriver _mag; // uncomment when using HMC5883L (addr 0x1E)
+    QMC5883PDriver _mag; // uncomment when using QMC5883P (GY-271 Clones like HP5883L, addr 0x2C)
     // =============================
 
     Calibration    _calib;

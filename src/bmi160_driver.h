@@ -14,7 +14,7 @@
 // ============================================================
 
 // BMI160 specific registers and constants
-#define BMI160_I2C_ADDR       0x68    // SA0 low -> 0x68, high -> 0x69
+#define BMI160_I2C_ADDR       0x69    // SA0 low -> 0x68, high -> 0x69
 #define BMI160_REG_CHIP_ID    0x00
 #define BMI160_CHIP_ID_VAL    0xD1
 
@@ -52,6 +52,9 @@ public:
      * @param wire  TwoWire instance (&Wire, &Wire1, …)
      */
     explicit BMI160Driver(uint8_t addr = BMI160_I2C_ADDR, TwoWire* wire = &Wire);
+
+    /** Convenience: wire-only constructor — uses default I2C address. */
+    explicit BMI160Driver(TwoWire* wire) : BMI160Driver(BMI160_I2C_ADDR, wire) {}
 
     /**
      * Initialize sensor. Sets ODR, FS, and powers up blocks.

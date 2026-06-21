@@ -9,8 +9,9 @@ LSM6DS3Driver::LSM6DS3Driver(uint8_t addr, TwoWire* wire)
 
 // ------------------------------------------------------------
 bool LSM6DS3Driver::begin() {
-    // Step 1: Verify device identity
-    if (whoAmI() != LSM6DS3_WHO_AM_I_VAL) return false;
+    // Step 1: Verify device identity (0x69 for LSM6DS3, 0x6A for LSM6DS3TR-C)
+    uint8_t id = whoAmI();
+    if (id != 0x69 && id != 0x6A) return false;
 
     // Step 2: CTRL3_C — enable BDU and register auto-increment
     // BDU=1: output registers not updated until both MSB/LSB read
